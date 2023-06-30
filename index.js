@@ -1,4 +1,6 @@
 const puppeteer = require("puppeteer");
+let request = require("request");
+
 //
 (async function () {
   const browser = await puppeteer.launch({
@@ -29,5 +31,23 @@ const puppeteer = require("puppeteer");
 })();
 
 async function broadcastEndpoint(wsEndpoint) {
-  console.log({WS: wsEndpoint});
+  console.log({ WS: wsEndpoint });
+  let options = {
+    method: "POST",
+    url: "http://192.168.0.134:3033/state/records",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      id: "browser_endpoint",
+      wsEndpoint: browser.wsEndpoint(),
+      version: await browser.version(),
+      userAgent: await browser.userAgent(),
+    }),
+  };
+  request(options, function (error, response) {
+    if (error) throw new Error(error);
+    console.log(response.body);
+  });
 }
+
