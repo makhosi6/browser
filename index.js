@@ -19,24 +19,22 @@ const puppeteer = require("puppeteer");
   console.log({
     "Browser Info =>": {
       date: new Date(),
-      wsEndpoint: browser.wsEndpoint(),
+      wsEndpoint: await browser.wsEndpoint(),
       version: await browser.version(),
       userAgent: await browser.userAgent(),
     },
   });
   ///
-  await broadcastEndpoint(browser.wsEndpoint());
-})();
-
-async function broadcastEndpoint(wsEndpoint) {
-  console.log({ WS: wsEndpoint });
-
-  let data = JSON.stringify({
+  await broadcastEndpoint({
     id: "browser_endpoint",
     wsEndpoint: browser.wsEndpoint(),
     version: await browser.version(),
     userAgent: await browser.userAgent(),
   });
+})();
+
+async function broadcastEndpoint(browserInfo) {
+  let data = JSON.stringify(browserInfo);
 
   ///
 
