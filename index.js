@@ -32,22 +32,27 @@ let request = require("request");
 
 async function broadcastEndpoint(wsEndpoint) {
   console.log({ WS: wsEndpoint });
-  let options = {
-    method: "POST",
-    url: "http://192.168.0.134:3033/state/records",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      id: "browser_endpoint",
-      wsEndpoint: browser.wsEndpoint(),
-      version: await browser.version(),
-      userAgent: await browser.userAgent(),
-    }),
-  };
-  request(options, function (error, response) {
-    if (error) throw new Error(error);
-    console.log(response.body);
-  });
-}
 
+  let data = JSON.stringify({
+    id: "browser_endpoint",
+    wsEndpoint: browser.wsEndpoint(),
+    version: await browser.version(),
+    userAgent: await browser.userAgent(),
+  });
+
+  ///
+
+  let xhr = new XMLHttpRequest();
+  xhr.withCredentials = true;
+
+  xhr.addEventListener("readystatechange", function () {
+    if (this.readyState === 4) {
+      console.log(this.responseText);
+    }
+  });
+
+  xhr.open("POST", "http://192.168.0.134:3033/state/records");
+  xhr.setRequestHeader("Content-Type", "application/json");
+
+  xhr.send(data);
+}
