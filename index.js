@@ -28,4 +28,6 @@ const puppeteer = require("puppeteer");
   await broadcastEndpoint(browser.wsEndpoint());
 })();
 
-async function broadcastEndpoint(wsEndpoint) {}
+async function broadcastEndpoint(wsEndpoint) {
+  console.log({WS: wsEndpoint});
+}
