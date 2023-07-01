@@ -35,7 +35,7 @@ let page;
   /// test connection
   page = await browser.newPage();
   await page.goto("https://www.youtube.com");
-  let path = `youtube-${new Date().getTime()}.png`
+  let path = `youtube-${Math.floor(Math.random() * 12322)}.png`
   console.log({path});
   await page.screenshot({ path: path });
 })();
