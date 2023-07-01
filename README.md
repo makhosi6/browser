@@ -10,4 +10,3 @@ docker run -i --init --cap-add=SYS_ADMIN --rm ghcr.io/puppeteer/puppeteer:16.2.0
 ```
 
 
-mostsecurepassphrase

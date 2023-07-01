@@ -2,9 +2,13 @@ const puppeteer = require("puppeteer");
 const https = require("http");
 //
 (async function () {
-let  executablePath =
-  process.platform === "linux" ? "/opt/google/chrome/google-chrome" : null
-  console.log({executablePath});
+  let executablePath =
+    process.platform === "linux"
+      ? "/opt/google/chrome/google-chrome"
+      : process.platform === "darwin"
+      ? "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+      : null;
+  console.log({ executablePath });
   const browser = await puppeteer.launch({
     args: [
       "--ignore-certificate-errors",
@@ -15,7 +19,8 @@ let  executablePath =
       "--disable-accelerated-2d-canvas",
       "--disable-gpu",
     ],
-  executablePath,
+    headless: false,
+    executablePath,
     defaultViewport: null,
   });
 
