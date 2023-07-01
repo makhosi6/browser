@@ -6,7 +6,8 @@ docker pull ghcr.io/puppeteer/puppeteer:16.2.0 # pulls the image that contains P
 ```
 
 ```bash
-docker run -d -i --init --cap-add=SYS_ADMIN --rm ghcr.io/puppeteer/puppeteer:16.2.0 node -e "$(cat index.js)"
+docker run -i --init --cap-add=SYS_ADMIN --rm ghcr.io/puppeteer/puppeteer:16.2.0 node -e "$(cat index.js)"
 ```
 
 
+mostsecurepassphrase

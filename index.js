@@ -39,10 +39,10 @@ async function broadcastEndpoint(browserInfo) {
   let data = JSON.stringify(browserInfo);
 
   const options = {
-    method: "POST",
+    method: "PUT",
     hostname: "192.168.0.134",
     port: 3033,
-    path: "/state/records",
+    path: "/state/records/browser_endpoint",
     headers: {
       "Content-Type": "application/json",
     },
