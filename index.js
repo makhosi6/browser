@@ -2,6 +2,9 @@ const puppeteer = require("puppeteer");
 const https = require("http");
 //
 (async function () {
+let  executablePath =
+  process.platform === "linux" ? "/opt/google/chrome/google-chrome" : null
+  console.log({executablePath});
   const browser = await puppeteer.launch({
     args: [
       "--ignore-certificate-errors",
@@ -12,8 +15,7 @@ const https = require("http");
       "--disable-accelerated-2d-canvas",
       "--disable-gpu",
     ],
-    executablePath:
-      process.platform === "linux" ? "/opt/google/chrome/google-chrome" : null,
+  executablePath,
     defaultViewport: null,
   });
 
