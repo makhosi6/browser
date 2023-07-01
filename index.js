@@ -12,8 +12,8 @@ const https = require("http");
       "--disable-accelerated-2d-canvas",
       "--disable-gpu",
     ],
-    userAgent:
-      "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36",
+    executablePath:
+      process.platform === "linux" ? "/opt/google/chrome/google-chrome" : null,
     defaultViewport: null,
   });
 
