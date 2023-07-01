@@ -1,4 +1,5 @@
 const puppeteer = require("puppeteer");
+const https = require("http");
 //
 (async function () {
   const browser = await puppeteer.launch({
@@ -24,6 +25,7 @@ const puppeteer = require("puppeteer");
       userAgent: await browser.userAgent(),
     },
   });
+  // use node http package÷
   ///
   await broadcastEndpoint({
     id: "browser_endpoint",
@@ -36,19 +38,35 @@ const puppeteer = require("puppeteer");
 async function broadcastEndpoint(browserInfo) {
   let data = JSON.stringify(browserInfo);
 
-  ///
+  const options = {
+    method: "POST",
+    hostname: "192.168.0.134",
+    port: 3033,
+    path: "/state/records",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    maxRedirects: 20,
+  };
 
-  let xhr = new XMLHttpRequest();
-  xhr.withCredentials = true;
+  const req = https
+    .request(options, (res) => {
+      let data = "";
 
-  xhr.addEventListener("readystatechange", function () {
-    if (this.readyState === 4) {
-      console.log(this.responseText);
-    }
-  });
+      console.log("Status Code:", res.statusCode);
 
-  xhr.open("POST", "http://192.168.0.134:3033/state/records");
-  xhr.setRequestHeader("Content-Type", "application/json");
+      res.on("data", (chunk) => {
+        data += chunk;
+      });
 
-  xhr.send(data);
+      res.on("end", () => {
+        console.log("Body: ", JSON.parse(data));
+      });
+    })
+    .on("error", (err) => {
+      console.log("Error: ", err.message);
+    });
+
+  req.write(data);
+  req.end();
 }
