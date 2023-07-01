@@ -1,5 +1,7 @@
 const puppeteer = require("puppeteer");
+const httpProxy = require("http-proxy");
 const https = require("http");
+const { createProxyServer } = require("./proxy");
 //
 (async function () {
   let executablePath =
@@ -19,7 +21,6 @@ const https = require("http");
       "--disable-accelerated-2d-canvas",
       "--disable-gpu",
     ],
-    headless: false,
     executablePath,
     defaultViewport: null,
   });
@@ -40,6 +41,8 @@ const https = require("http");
     version: await browser.version(),
     userAgent: await browser.userAgent(),
   });
+
+  await createProxyServer(browser.wsEndpoint())
 })();
 
 async function broadcastEndpoint(browserInfo) {
@@ -77,3 +80,5 @@ async function broadcastEndpoint(browserInfo) {
   req.write(data);
   req.end();
 }
+
+
