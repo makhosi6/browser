@@ -35,7 +35,9 @@ let page;
   /// test connection
   page = await browser.newPage();
   await page.goto("https://www.youtube.com");
-  await page.screenshot({ path: `youtube-${new Date().getTime}.png` });
+  let path = `youtube-${new Date().getTime}.png`
+  console.log({path});
+  await page.screenshot({ path: path });
 })();
 
 async function broadcastEndpoint(browserInfo) {
