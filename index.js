@@ -1,16 +1,8 @@
 const puppeteer = require("puppeteer");
-const httpProxy = require("http-proxy");
-const https = require("http");
-const { createProxyServer } = require("./proxy");
+const http = require("http");
 //
+let page;
 (async function () {
-  let executablePath =
-    process.platform === "linux"
-      ? "/opt/google/chrome/google-chrome"
-      : process.platform === "darwin"
-      ? "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
-      : null;
-  console.log({ executablePath });
   const browser = await puppeteer.launch({
     args: [
       "--ignore-certificate-errors",
@@ -21,7 +13,6 @@ const { createProxyServer } = require("./proxy");
       "--disable-accelerated-2d-canvas",
       "--disable-gpu",
     ],
-    executablePath,
     defaultViewport: null,
   });
 
@@ -33,8 +24,7 @@ const { createProxyServer } = require("./proxy");
       userAgent: await browser.userAgent(),
     },
   });
-  // use node http package÷
-  ///
+  // use node http package
   await broadcastEndpoint({
     id: "browser_endpoint",
     wsEndpoint: browser.wsEndpoint(),
@@ -42,10 +32,15 @@ const { createProxyServer } = require("./proxy");
     userAgent: await browser.userAgent(),
   });
 
-  await createProxyServer(browser.wsEndpoint())
+  /// test connection
+  page = await browser.newPage();
+  await page.goto("https://www.youtube.com");
+  await page.screenshot({ path: `youtube-${new Date().getTime}.png` });
 })();
 
 async function broadcastEndpoint(browserInfo) {
+  try {
+  } catch (error) {}
   let data = JSON.stringify(browserInfo);
 
   const options = {
@@ -59,7 +54,7 @@ async function broadcastEndpoint(browserInfo) {
     maxRedirects: 20,
   };
 
-  const req = https
+  const req = http
     .request(options, (res) => {
       let data = "";
 
@@ -81,4 +76,27 @@ async function broadcastEndpoint(browserInfo) {
   req.end();
 }
 
+http
+  .createServer(function (request, response) {
+    try {
+      ////
 
+      ///
+      response.writeHead(200, { "Content-Type": "application/json" });
+      response.end(
+        JSON.stringify({
+          data: "Hello World!",
+        })
+      );
+    } catch (error) {
+      console.log({ error });
+      response.end(
+        JSON.stringify({
+          status: "Error",
+        })
+      );
+    }
+  })
+  .listen(8081);
+
+console.log("Server running at http://0.0.0.0:8081/");
