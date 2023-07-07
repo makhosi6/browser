@@ -1,9 +1,14 @@
 const puppeteer = require("puppeteer");
 const http = require("http");
 const url = require("url");
-//
-let page;
+/**
+ * @type {puppeteer.Browser}
+ */
 let browser;
+/**
+ * @type {puppeteer.Page}
+ */
+let page;
 const PORT = 3400;
 (async function () {
   browser = await puppeteer.launch({
@@ -48,6 +53,7 @@ async function connectOrRecover() {
   await delay(400)
 
   console.log("HEALTH CHECK", {
+    pages: browser.pages.length,
     isConnected: browser.isConnected(),
     contexts: browser.browserContexts()
   });
@@ -110,7 +116,7 @@ const server = http
         input.value = "";
       });
 
-      await page.type('input[name="search_query"]', query);
+      await page.type('input[name="search_query"]', `${query} song`);
       await page.click("button#search-icon-legacy");
 
 
@@ -120,6 +126,7 @@ const server = http
       await page.mouse.wheel({ deltaY: -100 });
 
       // Wait for search results to load
+      await delay(700)
       await page.waitForSelector("ytd-video-renderer");
 
       /**
