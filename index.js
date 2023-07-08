@@ -152,11 +152,11 @@ const server = http
 
           ///Scroll to viewport
           // await element.hover("#video-title")
-          // const boundingBox = await element.boundingBox();
-          // await page.mouse.move(
-          //   boundingBox.x + boundingBox.width / 2,
-          //   boundingBox.y + boundingBox.height / 2
-          // );
+          const boundingBox = await element.boundingBox();
+          await page.mouse.move(
+            boundingBox.x + boundingBox.width / 2,
+            boundingBox.y + boundingBox.height / 2
+          );
 
 
           //Then extract values
@@ -213,6 +213,7 @@ const server = http
           let _data = {
             videoId,
             url: videoUrl,
+            videoCover,
             title,
             description,
             channelName,
@@ -240,18 +241,18 @@ const server = http
 
 
       console.log("WE ARE DONE");
-      await delay(100)
+      ///
+      await delay(700)
       await page.close();
       console.log("AFTER FIRST DELAY");
       setTimeout(async () => {
 
-
-        console.log(`${(new Date() - start) / 1000} seconds passed`)
+        console.log(`${(new Date() - start) / 1000} SECONDS HAS PASSED`);
         response.writeHead(200, { "Content-Type": "application/json" });
         response.end(
           JSON.stringify({ query, data })
         );
-      }, 100);
+      }, 700);
       ////   END  CODE THT GOES INSIDE THE CREATE SERVE CALLBACK
     } catch (error) {
       ///
