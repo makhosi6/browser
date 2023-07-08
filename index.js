@@ -152,11 +152,11 @@ const server = http
 
           ///Scroll to viewport
           // await element.hover("#video-title")
-          const boundingBox = await element.boundingBox();
-          await page.mouse.move(
-            boundingBox.x + boundingBox.width / 2,
-            boundingBox.y + boundingBox.height / 2
-          );
+          // const boundingBox = await element.boundingBox();
+          // await page.mouse.move(
+          //   boundingBox.x + boundingBox.width / 2,
+          //   boundingBox.y + boundingBox.height / 2
+          // );
 
 
           //Then extract values
@@ -227,9 +227,9 @@ const server = http
         } catch (error) {
 
           /// save a snapshot
-          let path = `youtube-inner-${Math.floor(Math.random() * 12322)}.png`
-          console.log({ path });
-          await page.screenshot({ path: path });
+          // let path = `youtube-inner-${Math.floor(Math.random() * 12322)}.png`
+          // console.log({ path });
+          // await page.screenshot({ path: path });
 
           console.log(error);
           return null
@@ -240,7 +240,7 @@ const server = http
 
 
       console.log("WE ARE DONE");
-await delay(100)
+      await delay(100)
       await page.close();
       console.log("AFTER FIRST DELAY");
       setTimeout(async () => {
