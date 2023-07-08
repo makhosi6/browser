@@ -5,10 +5,7 @@ const url = require("url");
  * @type {puppeteer.Browser}
  */
 let browser;
-/**
- * @type {puppeteer.Page}
- */
-let page;
+
 const PORT = 3400;
 (async function () {
   browser = await puppeteer.launch({
@@ -43,36 +40,46 @@ const PORT = 3400;
     userAgent: await browser.userAgent(),
   });
 
-  await connectOrRecover()
+
 })();
-
+/**
+ * 
+ */
 async function connectOrRecover() {
+  try {
+    console.log("HEALTH CHECK", {
+      pages: browser.pages.length,
+      isConnected: browser.isConnected(),
+      contexts: browser.browserContexts()
+    });
 
-  if (Boolean(page)) await page.close()
+    /// test connection
+    /**
+     * @type {puppeteer.Page}
+     */
+    let page = await browser.newPage();
 
-  await delay(400)
+    await page.setViewport({
+      width: 1920,
+      height: 1080,
+      deviceScaleFactor: 0.25,
+    });
+    return await page.goto("https://www.youtube.com");
+    // await page.setUserAgent('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36')
 
-  console.log("HEALTH CHECK", {
-    pages: browser.pages.length,
-    isConnected: browser.isConnected(),
-    contexts: browser.browserContexts()
-  });
-
-  /// test connection
-  page = await browser.newPage();
-
-  await page.setViewport({
-    width: 1920,
-    height: 1080,
-    deviceScaleFactor: 0.25,
-  });
-  await page.goto("https://www.youtube.com");
-  // await page.setUserAgent('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36')
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
 }
 
 
 const server = http
   .createServer(async function (request, response) {
+    /**
+    * @type {puppeteer.Page}
+    */
+    let page;
     try {
       const URL = url.parse(request.url, true);
       let pathName = URL.pathname;
@@ -109,6 +116,10 @@ const server = http
           return;
         }
       }
+
+
+      page = await connectOrRecover();
+
       console.log({ PAGE: Boolean(page) });
 
       await page.evaluate(() => {
@@ -126,7 +137,6 @@ const server = http
       await page.mouse.wheel({ deltaY: -100 });
 
       // Wait for search results to load
-      await delay(700)
       await page.waitForSelector("ytd-video-renderer");
 
       /**
@@ -245,16 +255,15 @@ const server = http
       await page.screenshot({ path: path });
 
       ///
-
-
       console.log({ error });
       response.end(
         JSON.stringify({
           status: "Error",
         })
       );
-      /// try to reconnect
-      await connectOrRecover()
+
+    } finally {
+      await page.close()
     }
   })
   .listen(PORT);
