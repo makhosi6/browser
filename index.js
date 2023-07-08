@@ -42,44 +42,11 @@ const PORT = 3400;
 
 
 })();
-/**
- * 
- */
-async function connectOrRecover() {
-  try {
-    console.log("HEALTH CHECK", {
-      pages: browser.pages.length,
-      isConnected: browser.isConnected(),
-      contexts: browser.browserContexts()
-    });
-
-    /// test connection
-    /**
-     * @type {puppeteer.Page}
-     */
-    let page = await browser.newPage();
-
-    await page.setViewport({
-      width: 1920,
-      height: 1080,
-      deviceScaleFactor: 0.25,
-    });
-    return await page.goto("https://www.youtube.com");
-    // await page.setUserAgent('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36')
-
-  } catch (error) {
-    console.log(error);
-    return null;
-  }
-}
 
 
 const server = http
   .createServer(async function (request, response) {
-    /**
-    * @type {puppeteer.Page}
-    */
-    let page;
+
     try {
       const URL = url.parse(request.url, true);
       let pathName = URL.pathname;
@@ -118,7 +85,23 @@ const server = http
       }
 
 
-      page = await connectOrRecover();
+      console.log("HEALTH CHECK", {
+        pages: browser.pages.length,
+        isConnected: browser.isConnected(),
+        contexts: browser.browserContexts()
+      });
+
+      /**
+       * @type {puppeteer.Page}
+       */
+      let page = await browser.newPage();
+
+      await page.setViewport({
+        width: 1920,
+        height: 1080,
+        deviceScaleFactor: 0.25,
+      });
+      await page.goto("https://www.youtube.com", { waitUntil: "networkidle2", timeout: 0 });
 
       console.log({ PAGE: Boolean(page) });
 
@@ -167,6 +150,7 @@ const server = http
           if (isAd) return null;
 
           ///Scroll to viewport
+          // await element.hover("#video-title")
           const boundingBox = await element.boundingBox();
           await page.mouse.move(
             boundingBox.x + boundingBox.width / 2,
@@ -189,7 +173,10 @@ const server = http
             (el) => el.innerText,
             channelElement
           );
-          const channelUrl = await page.evaluate((el) => el.src, channelElement);
+          const channelUrl = await page.evaluate((el) => el.href, channelElement);
+
+
+
           const videoLengthElement =
             (await element.$(".ytd-thumbnail-overlay-time-status-renderer")) ||
             (await element.$("ytd-thumbnail-overlay-time-status-renderer"));
@@ -203,24 +190,39 @@ const server = http
             (img) => img.src,
             videoImageElement
           );
+          ///
 
-          data.push({
+          const imageElement = await element.$("#thumbnail img");
+          const videoCover = await page.evaluate(
+            (img) => img.src,
+            imageElement
+          );
+
+          ///
+          const videoUrlElement = await element.$("#thumbnail");
+          const videoUrl = await page.evaluate(
+            (el) => el.href,
+            videoUrlElement
+          );
+
+          ///
+
+          let videoLink = url.parse(videoUrl, true);
+          let videoId = videoLink.query?.v
+          let _data = {
+            videoId,
+            url: videoUrl,
             title,
             description,
             channelName,
             channelUrl,
             videoLength: null,
             thumbnail: videoImage,
-          });
 
-          return {
-            title,
-            description,
-            channelName,
-            channelUrl,
-            videoLength: null,
-            thumbnail: videoImage,
-          };
+          }
+          data.push(_data);
+
+          return _data;
         } catch (error) {
 
           /// save a snapshot
@@ -239,7 +241,7 @@ const server = http
       console.log("WE ARE DONE");
       ///
       await delay(700)
-
+      await page.close();
       console.log("AFTER FIRST DELAY");
       setTimeout(async () => {
         response.writeHead(200, { "Content-Type": "application/json" });
@@ -249,11 +251,6 @@ const server = http
       }, 700);
       ////   END  CODE THT GOES INSIDE THE CREATE SERVE CALLBACK
     } catch (error) {
-      /// save a snapshot
-      let path = `youtube-${Math.floor(Math.random() * 12322)}.png`
-      console.log({ path });
-      await page.screenshot({ path: path });
-
       ///
       console.log({ error });
       response.end(
@@ -262,8 +259,6 @@ const server = http
         })
       );
 
-    } finally {
-      await page.close()
     }
   })
   .listen(PORT);
