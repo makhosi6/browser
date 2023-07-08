@@ -46,6 +46,7 @@ const PORT = 3400;
 
 const server = http
   .createServer(async function (request, response) {
+    let start = new Date()
 
     try {
       const URL = url.parse(request.url, true);
@@ -239,16 +240,18 @@ const server = http
 
 
       console.log("WE ARE DONE");
-      ///
-      await delay(700)
+await delay(100)
       await page.close();
       console.log("AFTER FIRST DELAY");
       setTimeout(async () => {
+
+
+        console.log(`${(new Date() - start) / 1000} seconds passed`)
         response.writeHead(200, { "Content-Type": "application/json" });
         response.end(
           JSON.stringify({ query, data })
         );
-      }, 700);
+      }, 100);
       ////   END  CODE THT GOES INSIDE THE CREATE SERVE CALLBACK
     } catch (error) {
       ///
